@@ -8,8 +8,14 @@ pub mod error;
 
 use error::{AppError, DynResult};
 
-pub fn run() -> DynResult<()> {
+#[derive(Debug, Default)]
+pub struct Config {
+  filename: String,
+}
+
+pub fn run(config: Config) -> DynResult<()> {
   check_git()?;
+  read_vesion_from_file(&config.filename)?;
   Ok(())
 }
 

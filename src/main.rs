@@ -1,6 +1,6 @@
-use pushtag::run;
+use pushtag::{run, Config};
 
 fn main() {
-    run();
-    println!("Hello, world!");
+  let config: Config = Default::default();
+  run(config);
 }
