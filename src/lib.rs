@@ -2,6 +2,7 @@ use std::fs;
 use std::process::Command;
 use serde::{Deserialize};
 use toml;
+use std::convert::TryFrom;
 
 pub mod error;
 
@@ -21,6 +22,19 @@ struct FileField {
 enum SupportedExtensions {
   Toml,
   Json
+}
+
+impl TryFrom<&str> for SupportedExtensions {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+      let res: Self = match value {
+        "toml" => SupportedExtensions::Toml,
+        "json"=> SupportedExtensions::Json,
+        _ => return Err(())
+      };
+      Ok(res)
+    }
 }
 
 pub fn read_vesion_from_file(filename: &str) -> DynResult<String> {
