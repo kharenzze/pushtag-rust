@@ -2,7 +2,6 @@ pub mod error;
 
 use error::{AppError, AppResult, DynResult};
 use serde::Deserialize;
-use std::convert::{TryFrom, TryInto};
 use std::fs;
 use std::process::Command;
 use toml;
@@ -12,13 +11,22 @@ pub struct Config {
   filename: String,
 }
 
-const KNOWN_FILES: [&'static str; 2] = ["Cargo.toml", "package.json"];
+const KNOWN_FILES: [VersionFile; 2] = [
+  VersionFile {
+    name: "Cargo.toml",
+    extension: SupportedExtensions::Toml,
+  },
+  VersionFile {
+    name: "package.json",
+    extension: SupportedExtensions::Json,
+  },
+];
 
 pub fn run(config: Config) -> AppResult<()> {
   check_git().map_err(|_| AppError::GitError);
   let version = KNOWN_FILES
     .iter()
-    .map(|&filename| read_vesion_from_file(filename))
+    .map(|f| read_vesion_from_file(f))
     .find(|r| r.is_ok())
     .map(|r| r.unwrap())
     .ok_or_else(|| AppError::CannotFindVersion)?;
@@ -37,27 +45,14 @@ enum SupportedExtensions {
   Json,
 }
 
-impl TryFrom<&str> for SupportedExtensions {
-  type Error = AppError;
-
-  fn try_from(value: &str) -> Result<Self, Self::Error> {
-    let res: Self = match value {
-      "toml" => SupportedExtensions::Toml,
-      "json" => SupportedExtensions::Json,
-      _ => return Err(AppError::UnhandleExtension),
-    };
-    Ok(res)
-  }
+struct VersionFile {
+  name: &'static str,
+  extension: SupportedExtensions,
 }
 
-pub fn read_vesion_from_file(filename: &str) -> DynResult<String> {
-  let extension: SupportedExtensions = filename
-    .split(".")
-    .last()
-    .ok_or_else(|| AppError::ExtensionNotFound)?
-    .try_into()?;
-  let file = fs::read_to_string(filename)?;
-  let parsed: FileField = match extension {
+fn read_vesion_from_file(f: &VersionFile) -> DynResult<String> {
+  let file = fs::read_to_string(f.name)?;
+  let parsed: FileField = match f.extension {
     SupportedExtensions::Toml => toml::from_str(&file)?,
     SupportedExtensions::Json => todo!(),
   };
