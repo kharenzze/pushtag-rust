@@ -5,17 +5,16 @@ use std::process::Command;
 use toml;
 
 pub mod error;
-
-use error::{AppError, DynResult};
+use error::{AppError, AppResult, DynResult};
 
 #[derive(Debug, Default)]
 pub struct Config {
   filename: String,
 }
 
-pub fn run(config: Config) -> DynResult<()> {
-  check_git()?;
-  read_vesion_from_file(&config.filename)?;
+pub fn run(config: Config) -> AppResult<()> {
+  check_git().map_err(|_| AppError::GitError)?;
+  read_vesion_from_file(&config.filename).map_err(|_| AppError::FileError)?;
   Ok(())
 }
 

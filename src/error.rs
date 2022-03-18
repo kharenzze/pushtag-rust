@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 pub type DynResult<T> = Result<T, Box<dyn std::error::Error>>;
+pub type AppResult<T> = Result<T, AppError>;
 
 #[derive(Debug, Clone, Copy, Error, PartialEq, Eq)]
 pub enum AppError {
@@ -8,4 +9,8 @@ pub enum AppError {
   ExtensionNotFound,
   #[error("Unhandled extension")]
   UnhandleExtension,
+  #[error("Git Error")]
+  GitError,
+  #[error("Error reading file")]
+  FileError,
 }

@@ -1,6 +1,7 @@
+use pushtag::error::AppResult;
 use pushtag::{run, Config};
 
-fn main() {
+fn main() -> AppResult<()> {
   let config: Config = Default::default();
-  run(config);
+  run(config)
 }
