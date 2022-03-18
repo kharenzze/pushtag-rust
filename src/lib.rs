@@ -1,4 +1,3 @@
-use std::{error::Error};
 use std::fs;
 use std::process::Command;
 use serde::{Deserialize};
@@ -6,9 +5,8 @@ use toml;
 
 pub mod error;
 
-use error::AppError;
+use error::{AppError, DynResult};
 
-type DynResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 pub fn run() -> DynResult<()> {
   check_git()?;
