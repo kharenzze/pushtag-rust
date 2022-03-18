@@ -44,11 +44,10 @@ pub fn read_vesion_from_file(filename: &str) -> DynResult<String> {
     .ok_or_else(|| AppError::ExtensionNotFound)?
     .try_into()?;
   let file = fs::read_to_string(filename)?;
-  let parsed: DynResult<FileField> = match extension {
-    SupportedExtensions::Toml => toml::from_str(&file).map_err(|err| err.into()),
+  let parsed: FileField = match extension {
+    SupportedExtensions::Toml => toml::from_str(&file)?,
     SupportedExtensions::Json => todo!(),
   };
-  let parsed: FileField = parsed?;
   Ok("".to_string())
 }
 
