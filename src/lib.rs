@@ -7,7 +7,6 @@ pub mod error;
 
 use error::{AppError, DynResult};
 
-
 pub fn run() -> DynResult<()> {
   check_git()?;
   Ok(())
@@ -16,6 +15,12 @@ pub fn run() -> DynResult<()> {
 #[derive(Deserialize, Debug)]
 struct FileField {
   version: String
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SupportedExtensions {
+  Toml,
+  Json
 }
 
 pub fn read_vesion_from_file(filename: &str) -> DynResult<String> {
