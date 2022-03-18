@@ -1,20 +1,9 @@
-use std::fmt::{Display};
-use std::error::{Error};
+use thiserror::Error;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Error, PartialEq, Eq)]
 pub enum AppError {
+  #[error("Extension not found")]
   ExtensionNotFound,
+  #[error("Unhandled extension")]
   UnhandleExtension,
 }
-
-impl Display for AppError {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let msg = match self {
-      &AppError::ExtensionNotFound => "Extension not found",
-      &AppError::UnhandleExtension => "Unhandled extension",
-    };
-    write!(f, "{}", msg)
-  }
-}
-
-impl Error for AppError {}
