@@ -13,4 +13,6 @@ pub enum AppError {
   GitError,
   #[error("Error reading file")]
   FileError,
+  #[error("Could not find a version number in current folder")]
+  CannotFindVersion,
 }

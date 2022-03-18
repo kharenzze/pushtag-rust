@@ -1,20 +1,28 @@
+pub mod error;
+
+use error::{AppError, AppResult, DynResult};
 use serde::Deserialize;
 use std::convert::{TryFrom, TryInto};
 use std::fs;
 use std::process::Command;
 use toml;
 
-pub mod error;
-use error::{AppError, AppResult, DynResult};
-
 #[derive(Debug, Default)]
 pub struct Config {
   filename: String,
 }
 
+const KNOWN_FILES: [&'static str; 2] = ["Cargo.toml", "package.json"];
+
 pub fn run(config: Config) -> AppResult<()> {
-  check_git().map_err(|_| AppError::GitError)?;
-  read_vesion_from_file(&config.filename).map_err(|_| AppError::FileError)?;
+  check_git().map_err(|_| AppError::GitError);
+  let version = KNOWN_FILES
+    .iter()
+    .map(|&filename| read_vesion_from_file(filename))
+    .find(|r| r.is_ok())
+    .map(|r| r.unwrap())
+    .ok_or_else(|| AppError::CannotFindVersion)?;
+  println!("{}", &version);
   Ok(())
 }
 
