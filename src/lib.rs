@@ -63,3 +63,20 @@ fn check_git() -> DynResult<()> {
   println!("{}", &text);
   Ok(())
 }
+
+
+#[cfg(test)]
+mod tests {
+  use super::KNOWN_FILES;
+  use std::fs;
+
+  #[test]
+  fn readers() {
+    for vf in KNOWN_FILES.iter() {
+      let path = format!("./tests/resources/{}", vf.name);
+      let file = fs::read_to_string(path).expect("Missing file");
+      let version = (vf.version_getter)(&file).unwrap();
+      assert_eq!(&version, "1.2.3");
+    }
+  }
+}
