@@ -1,11 +1,10 @@
 pub mod error;
 
 use error::{AppError, AppResult, DynResult};
-use serde::Deserialize;
 use std::fs;
 use std::process::Command;
-use std::slice::SliceIndex;
 use toml;
+use serde_json;
 
 #[derive(Debug, Default)]
 pub struct Config {
@@ -29,7 +28,15 @@ const KNOWN_FILES: [VersionFile; 2] = [
   },
   VersionFile {
     name: "package.json",
-    version_getter: |file_content| todo!(),
+    version_getter: |file_content| {
+      let parsed: serde_json::Value = serde_json::from_str(&file_content).ok()?;
+      let version: String = parsed
+        .as_object()?
+        .get("version")?
+        .as_str()?
+        .into();
+      Some(version)
+    },
   },
 ];
 
