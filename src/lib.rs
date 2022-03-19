@@ -4,6 +4,7 @@ use error::{AppError, AppResult, DynResult};
 use serde::Deserialize;
 use std::fs;
 use std::process::Command;
+use std::slice::SliceIndex;
 use toml;
 
 #[derive(Debug, Default)]
@@ -14,11 +15,21 @@ pub struct Config {
 const KNOWN_FILES: [VersionFile; 2] = [
   VersionFile {
     name: "Cargo.toml",
-    extension: SupportedExtensions::Toml,
+    version_getter: |file_content| {
+      let parsed: toml::Value = toml::from_str(file_content).ok()?;
+      let version: String = parsed
+        .as_table()?
+        .get("package")?
+        .as_table()?
+        .get("version")?
+        .as_str()?
+        .into();
+      Some(version)
+    },
   },
   VersionFile {
     name: "package.json",
-    extension: SupportedExtensions::Json,
+    version_getter: |file_content| todo!(),
   },
 ];
 
@@ -34,29 +45,15 @@ pub fn run(config: Config) -> AppResult<()> {
   Ok(())
 }
 
-#[derive(Deserialize, Debug)]
-struct FileField {
-  version: String,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum SupportedExtensions {
-  Toml,
-  Json,
-}
-
 struct VersionFile {
   name: &'static str,
-  extension: SupportedExtensions,
+  version_getter: fn(&str) -> Option<String>,
 }
 
 fn read_vesion_from_file(f: &VersionFile) -> DynResult<String> {
   let file = fs::read_to_string(f.name)?;
-  let parsed: FileField = match f.extension {
-    SupportedExtensions::Toml => toml::from_str(&file)?,
-    SupportedExtensions::Json => todo!(),
-  };
-  Ok("".to_string())
+  let version = (f.version_getter)(&file).ok_or(AppError::CannotFindVersion.into());
+  version
 }
 
 fn check_git() -> DynResult<()> {
