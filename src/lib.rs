@@ -55,6 +55,10 @@ struct VersionFile {
 fn read_vesion_from_file(f: &VersionFile) -> DynResult<String> {
   let file = fs::read_to_string(f.name)?;
   let version = (f.version_getter)(&file).ok_or(AppError::CannotFindVersion.into());
+  if version.is_ok() {
+    let v: &str = version.as_ref().unwrap();
+    println!("Found version {} in file {}", v, f.name);
+  }
   version
 }
 
