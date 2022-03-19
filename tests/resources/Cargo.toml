@@ -1,0 +1,4 @@
+[package]
+name = "name"
+version = "1.2.3"
+edition = "2018"
