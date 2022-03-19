@@ -9,8 +9,8 @@ pub enum AppError {
   ExtensionNotFound,
   #[error("Unhandled extension")]
   UnhandleExtension,
-  #[error("Git Error")]
-  GitError,
+  #[error("Git Repo not found")]
+  GitRepoNotFound,
   #[error("Error reading file")]
   FileError,
   #[error("Could not find a version number in current folder")]

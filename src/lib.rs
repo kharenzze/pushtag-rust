@@ -1,10 +1,10 @@
 pub mod error;
 
 use error::{AppError, AppResult, DynResult};
-use std::fs;
-use std::process::Command;
-use toml;
+use git2::Repository;
 use serde_json;
+use std::fs;
+use toml;
 
 #[derive(Debug, Default)]
 pub struct Config {
@@ -30,18 +30,14 @@ const KNOWN_FILES: [VersionFile; 2] = [
     name: "package.json",
     version_getter: |file_content| {
       let parsed: serde_json::Value = serde_json::from_str(&file_content).ok()?;
-      let version: String = parsed
-        .as_object()?
-        .get("version")?
-        .as_str()?
-        .into();
+      let version: String = parsed.as_object()?.get("version")?.as_str()?.into();
       Some(version)
     },
   },
 ];
 
 pub fn run(config: Config) -> AppResult<()> {
-  check_git().map_err(|_| AppError::GitError);
+  check_git()?;
   let version = KNOWN_FILES
     .iter()
     .map(read_vesion_from_file)
@@ -62,14 +58,10 @@ fn read_vesion_from_file(f: &VersionFile) -> DynResult<String> {
   version
 }
 
-fn check_git() -> DynResult<()> {
-  let child = Command::new("git --version").spawn()?;
-  let out = child.wait_with_output()?;
-  let text: String = String::from_utf8_lossy(&out.stdout).into_owned();
-  println!("{}", &text);
-  Ok(())
+fn check_git() -> AppResult<Repository> {
+  let repo = Repository::open(".").map_err(|_| AppError::GitRepoNotFound);
+  repo
 }
-
 
 #[cfg(test)]
 mod tests {
