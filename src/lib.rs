@@ -44,11 +44,10 @@ pub fn run(config: Config) -> AppResult<()> {
   check_git().map_err(|_| AppError::GitError);
   let version = KNOWN_FILES
     .iter()
-    .map(|f| read_vesion_from_file(f))
+    .map(read_vesion_from_file)
     .find(|r| r.is_ok())
     .map(|r| r.unwrap())
     .ok_or_else(|| AppError::CannotFindVersion)?;
-  println!("{}", &version);
   Ok(())
 }
 
