@@ -1,14 +1,17 @@
 pub mod error;
 
+use clap::Parser;
 use error::{AppError, AppResult, DynResult};
 use git2::Repository;
 use serde_json;
 use std::fs;
 use toml;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Parser)]
+#[clap(author, version, about, long_about = None)]
 pub struct Config {
-  filename: String,
+  #[clap(long, short)]
+  prefix: Option<String>,
 }
 
 const KNOWN_FILES: [VersionFile; 2] = [
