@@ -55,13 +55,34 @@ pub fn run(config: Config) -> AppResult<()> {
   let version = try_find_out_version()?;
   let pre = config.prefix.unwrap_or_else(|| "v".to_string());
   let tag = format!("{}{}", &pre, &version);
-  println!("Tag: {}", &tag);
-  let proceed = crate::io::question_bool("question?", true)?;
+  let proceed = crate::io::question_bool(&format!("Tag: {}. Do you want to proceed?", &tag), true)?;
   if !proceed {
     return Err(AppError::AbortedByUser);
   }
-  set_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+  let already_exist = check_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+  if already_exist {
+    let proceed = crate::io::question_bool("Tag lready set. Do you want to move it?", false)?;
+    if !proceed {
+      return Err(AppError::AbortedByUser);
+    }
+    todo!();
+  } else {
+    set_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+  }
   Ok(())
+}
+
+#[inline]
+fn check_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
+  let obj = repo.revparse_single("HEAD")?;
+  let sig = repo.signature()?;
+  let list = repo.tag_names(Some(tag))?;
+  let exist = list
+    .iter()
+    .filter(|s| s.is_some())
+    .map(|o| o.unwrap())
+    .find(|&s| s == tag);
+  Ok(exist.is_some())
 }
 
 #[inline]
