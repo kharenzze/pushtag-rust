@@ -61,7 +61,7 @@ pub fn run(config: Config) -> AppResult<()> {
   }
   let already_exist = check_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
   if already_exist {
-    let proceed = crate::io::question_bool("Tag lready set. Do you want to move it?", false)?;
+    let proceed = crate::io::question_bool("Tag already set. Do you want to move it?", false)?;
     if !proceed {
       return Err(AppError::AbortedByUser);
     }
