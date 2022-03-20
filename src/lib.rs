@@ -91,6 +91,11 @@ fn move_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
 }
 
 #[inline]
+fn push_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
+  todo!();
+}
+
+#[inline]
 fn set_tag(tag: &str, repo: &Repository) -> DynResult<()> {
   let obj = repo.revparse_single("HEAD")?;
   let sig = repo.signature()?;
