@@ -1,6 +1,6 @@
-use crate::error::{DynResult, AppError};
+use crate::error::{AppError, AppResult};
 
-pub fn question_bool(question: &str, default: bool) -> DynResult<bool> {
+pub fn question_bool(question: &str, default: bool) -> AppResult<bool> {
   let guide = if default {
     "Y/n"
   } else {
@@ -8,7 +8,7 @@ pub fn question_bool(question: &str, default: bool) -> DynResult<bool> {
   };
   println!("{} ({})", question, guide);
   let mut input = String::new();
-  std::io::stdin().read_line(&mut input)?;
+  std::io::stdin().read_line(&mut input).map_err(|_| AppError::InputError)?;
   let sanitized = input.trim().to_lowercase(); 
   return match sanitized.as_str() {
     "" => Ok(default),
@@ -16,6 +16,6 @@ pub fn question_bool(question: &str, default: bool) -> DynResult<bool> {
     "yes" => Ok(true),
     "n" => Ok(false),
     "no" => Ok(false),
-    _ => Err(AppError::InputError.into())
+    _ => Err(AppError::UnexpecetedInput)
   } 
 }

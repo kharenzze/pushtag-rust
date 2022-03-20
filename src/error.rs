@@ -17,4 +17,8 @@ pub enum AppError {
   CannotFindVersion,
   #[error("Error reading input")]
   InputError,
+  #[error("Unexpeceted input")]
+  UnexpecetedInput,
+  #[error("Aborted by user")]
+  AbortedByUser,
 }
