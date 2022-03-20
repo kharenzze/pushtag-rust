@@ -40,14 +40,19 @@ const KNOWN_FILES: [VersionFile; 2] = [
   },
 ];
 
-pub fn run(config: Config) -> AppResult<()> {
-  check_git()?;
-  let version = KNOWN_FILES
+#[inline]
+fn try_find_out_version() -> AppResult<String> {
+  KNOWN_FILES
     .iter()
     .map(read_vesion_from_file)
     .find(|r| r.is_ok())
     .map(|r| r.unwrap())
-    .ok_or_else(|| AppError::CannotFindVersion)?;
+    .ok_or_else(|| AppError::CannotFindVersion)
+}
+
+pub fn run(config: Config) -> AppResult<()> {
+  let repo = check_git()?;
+  let version = try_find_out_version()?;
   let pre = config.prefix.unwrap_or_else(|| "v".to_string());
   let tag = format!("{}{}", &pre, &version);
   println!("Tag: {}", &tag);
