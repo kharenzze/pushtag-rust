@@ -1,4 +1,5 @@
 pub mod error;
+mod io;
 
 use clap::Parser;
 use error::{AppError, AppResult, DynResult};
@@ -47,6 +48,13 @@ pub fn run(config: Config) -> AppResult<()> {
     .find(|r| r.is_ok())
     .map(|r| r.unwrap())
     .ok_or_else(|| AppError::CannotFindVersion)?;
+  let pre = config.prefix.unwrap_or_else(|| "v".to_string());
+  let tag = format!("{}{}", &pre, &version);
+  println!("Tag: {}", &tag);
+  let proceed = crate::io::question_bool("question?", true)?;
+  if !proceed {
+    return Err(AppError::AbortedByUser);
+  }
   Ok(())
 }
 
