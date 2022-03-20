@@ -15,4 +15,6 @@ pub enum AppError {
   FileError,
   #[error("Could not find a version number in current folder")]
   CannotFindVersion,
+  #[error("Error reading input")]
+  InputError,
 }
