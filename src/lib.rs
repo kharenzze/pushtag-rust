@@ -60,6 +60,15 @@ pub fn run(config: Config) -> AppResult<()> {
   if !proceed {
     return Err(AppError::AbortedByUser);
   }
+  set_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+  Ok(())
+}
+
+#[inline]
+fn set_tag(tag: &str, repo: &Repository) -> DynResult<()> {
+  let obj = repo.revparse_single("HEAD")?;
+  let sig = repo.signature()?;
+  repo.tag(&tag, &obj, &sig, "", false)?;
   Ok(())
 }
 
