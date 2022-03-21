@@ -63,7 +63,7 @@ pub fn run(config: Config) -> AppResult<()> {
     tag: &tag,
     repo: &repo,
   };
-  let already_exist = ctx.check_tag().map_err(|e| AppError::GitError(e.to_string()))?;
+  let already_exist = ctx.check_tag()?;
   if already_exist {
     let proceed = crate::io::question_bool("Tag already set. Do you want to move it?", false)?;
     if !proceed {
