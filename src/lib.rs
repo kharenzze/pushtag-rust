@@ -59,7 +59,11 @@ pub fn run(config: Config) -> AppResult<()> {
   if !proceed {
     return Err(AppError::AbortedByUser);
   }
-  let already_exist = check_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+  let ctx = Context {
+    tag: &tag,
+    repo: &repo,
+  };
+  let already_exist = ctx.check_tag().map_err(|e| AppError::GitError(e.to_string()))?;
   if already_exist {
     let proceed = crate::io::question_bool("Tag already set. Do you want to move it?", false)?;
     if !proceed {
@@ -67,39 +71,47 @@ pub fn run(config: Config) -> AppResult<()> {
     }
     todo!();
   } else {
-    set_tag(&tag, &repo)?;
-    push_tag(&tag, &repo)?;
+    ctx.set_tag()?;
+    ctx.push_tag()?;
   }
   Ok(())
 }
 
-#[inline]
-fn check_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
-  let list = repo.tag_names(Some(tag))?;
-  let exist = list
-    .iter()
-    .filter(|s| s.is_some())
-    .map(|o| o.unwrap())
-    .find(|&s| s == tag);
-  Ok(exist.is_some())
+struct Context<'a> {
+  tag: &'a str,
+  repo: &'a Repository,
 }
 
-#[inline]
-fn move_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
-  todo!();
-}
+impl<'a> Context<'a>  {
 
-#[inline]
-fn push_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
-  todo!();
-}
+  #[inline]
+  fn check_tag(&self) -> AppResult<bool> {
+    let list = self.repo.tag_names(Some(self.tag))?;
+    let exist = list
+      .iter()
+      .filter(|s| s.is_some())
+      .map(|o| o.unwrap())
+      .find(|&s| s == self.tag);
+    Ok(exist.is_some())
+  }
 
-#[inline]
-fn set_tag(tag: &str, repo: &Repository) -> AppResult<()> {
-  let obj = repo.revparse_single("HEAD")?;
-  let sig = repo.signature()?;
-  repo.tag(&tag, &obj, &sig, "", false)?;
-  Ok(())
+  #[inline]
+  fn move_tag(&self) -> AppResult<bool> {
+    todo!();
+  }
+
+  #[inline]
+  fn push_tag(&self) -> AppResult<bool> {
+    todo!();
+  }
+
+  #[inline]
+  fn set_tag(&self) -> AppResult<()> {
+    let obj = self.repo.revparse_single("HEAD")?;
+    let sig = self.repo.signature()?;
+    self.repo.tag(self.tag, &obj, &sig, "", false)?;
+    Ok(())
+  }
 }
 
 struct VersionFile {
