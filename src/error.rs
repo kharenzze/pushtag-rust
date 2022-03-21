@@ -24,3 +24,9 @@ pub enum AppError {
   #[error("Aborted by user")]
   AbortedByUser,
 }
+
+impl From<git2::Error> for AppError {
+  fn from(e: git2::Error) -> Self {
+    AppError::GitError(e.to_string())
+  }
+}

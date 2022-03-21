@@ -67,15 +67,14 @@ pub fn run(config: Config) -> AppResult<()> {
     }
     todo!();
   } else {
-    set_tag(&tag, &repo).map_err(|e| AppError::GitError(e.to_string()))?;
+    set_tag(&tag, &repo)?;
+    push_tag(&tag, &repo)?;
   }
   Ok(())
 }
 
 #[inline]
-fn check_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
-  let obj = repo.revparse_single("HEAD")?;
-  let sig = repo.signature()?;
+fn check_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
   let list = repo.tag_names(Some(tag))?;
   let exist = list
     .iter()
@@ -86,17 +85,17 @@ fn check_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
 }
 
 #[inline]
-fn move_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
+fn move_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
   todo!();
 }
 
 #[inline]
-fn push_tag(tag: &str, repo: &Repository) -> DynResult<bool> {
+fn push_tag(tag: &str, repo: &Repository) -> AppResult<bool> {
   todo!();
 }
 
 #[inline]
-fn set_tag(tag: &str, repo: &Repository) -> DynResult<()> {
+fn set_tag(tag: &str, repo: &Repository) -> AppResult<()> {
   let obj = repo.revparse_single("HEAD")?;
   let sig = repo.signature()?;
   repo.tag(&tag, &obj, &sig, "", false)?;
