@@ -60,10 +60,11 @@ pub fn run(config: Config) -> AppResult<()> {
   if !proceed {
     return Err(AppError::AbortedByUser);
   }
+  let remote_name: String = config.remote.unwrap_or("origin".into());
   let ctx = Context {
     tag: &tag,
     repo: &repo,
-    remote_name: config.remote.map(|s| s.as_str()).unwrap_or("origin")
+    remote_name: &remote_name
   };
   let already_exist = ctx.check_tag()?;
   if already_exist {
@@ -104,9 +105,10 @@ impl<'a> Context<'a>  {
   }
 
   #[inline]
-  fn push_tag(&self) -> AppResult<bool> {
-    let remote = self.repo.find_remote()
-    todo!();
+  fn push_tag(&self) -> AppResult<()> {
+    let mut remote = self.repo.find_remote(self.remote_name)?;
+    remote.push(&[self.tag], None)?;
+    Ok(())
   }
 
   #[inline]
