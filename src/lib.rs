@@ -13,7 +13,7 @@ use toml;
 pub struct Config {
   #[clap(long, short)]
   prefix: Option<String>,
-  origin: Option<String>,
+  remote: Option<String>,
 }
 
 const KNOWN_FILES: [VersionFile; 2] = [
@@ -63,7 +63,7 @@ pub fn run(config: Config) -> AppResult<()> {
   let ctx = Context {
     tag: &tag,
     repo: &repo,
-    remote_name: config.origin.map(|s| s.as_str()).unwrap_or("origin")
+    remote_name: config.remote.map(|s| s.as_str()).unwrap_or("origin")
   };
   let already_exist = ctx.check_tag()?;
   if already_exist {
