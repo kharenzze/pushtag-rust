@@ -45,7 +45,7 @@ const KNOWN_FILES: [VersionFile; 2] = [
 fn try_find_out_version() -> AppResult<String> {
   KNOWN_FILES
     .iter()
-    .map(read_vesion_from_file)
+    .map(read_version_from_file)
     .find(|r| r.is_ok())
     .map(|r| r.unwrap())
     .ok_or_else(|| AppError::CannotFindVersion)
@@ -125,7 +125,7 @@ struct VersionFile {
   version_getter: fn(&str) -> Option<String>,
 }
 
-fn read_vesion_from_file(f: &VersionFile) -> DynResult<String> {
+fn read_version_from_file(f: &VersionFile) -> DynResult<String> {
   let file = fs::read_to_string(f.name)?;
   let version = (f.version_getter)(&file).ok_or(AppError::CannotFindVersion.into());
   if version.is_ok() {

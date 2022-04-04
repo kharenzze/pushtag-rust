@@ -1,4 +1,3 @@
-use clap::StructOpt;
 use pushtag::error::AppResult;
 use pushtag::{run, Config};
 
